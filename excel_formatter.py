@@ -7,18 +7,20 @@ from openpyxl.styles import Font, Color
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import re
+from copy import copy
 
 
 class formatter():
     def __init__(self,
                  filename,
                  sheet_name= None,
-                 font_name = "Cambria",
+                 font_name = "Calibri",
                  font_size = 10,
+                 header_font_size = 14,
                  header_bold = True,
                  froze_first_row=True,
                  add_fliter=True,
-                 header_height=18,
+                 header_height=25,
                  add_border=True,
                  alignment_center=True,
                  specific_alignment_left = [],
@@ -26,7 +28,12 @@ class formatter():
                  wrap_width=[],
                  fill_color_header='95B3DF',
                  hide_columns=[],
-                 column_width= {}
+                 column_width= {},
+                 output_filename=None,
+                 home_page_bottom= None,
+                 whiten_nontable_area= False,
+                 zoom_level = 85
+
                  ):
         # load excel file and focus on one sheet
         if column_width is None:
@@ -56,16 +63,27 @@ class formatter():
         for tr in table:
             for td in tr:
                 td.font = font
-        if header_bold:
-            for td in header:
-                td.font = Font(name=font_name,
-                    size=font_size,
-                    bold=True,
+
+        font = Font(name=font_name,
+                    size=header_font_size,
+                    bold=False,
                     italic=False,
                     vertAlign=None,
                     underline='none',
                     strike=False,
                     color='FF000000')
+
+        #font for header
+        for td in header:
+            td.font = font
+
+
+
+        if header_bold:
+            for td in header:
+                font = copy(td.font)
+                font.bold = True
+                td.font = font
 
 
         ## frozen first row
@@ -110,21 +128,15 @@ class formatter():
         for col in specific_alignment_left:
             column = ws[col]
             for td in column:
-                td.alignment = Alignment(horizontal='left',
-                                  vertical='top',
-                                  text_rotation=0,
-                                  wrap_text=False,
-                                  shrink_to_fit=False,
-                                  indent=0)
+                alignment = copy(td.alignment)
+                alignment.horizontal = 'left'
+                td.alignment = alignment
         ###header do not change
         if alignment_center:
-            alignment = Alignment(horizontal='center',
-                                  vertical='center',
-                                  text_rotation=0,
-                                  wrap_text=False,
-                                  shrink_to_fit=False,
-                                  indent=0)
             for cell in header:
+                alignment = copy(cell.alignment)
+                alignment.horizontal = 'center'
+                alignment.vertical = 'center'
                 cell.alignment = alignment
 
         ## auto fit column width
@@ -138,19 +150,24 @@ class formatter():
             for i, width in enumerate(column_widths):
                 ws.column_dimensions[get_column_letter(i + 1)].width = width * 1.3 + 5
 
-        ## wrap and widen columns
+        ##choose column width (specific)
+        for col in column_width:
+            ws.column_dimensions[col].width = column_width[col]
+
+        ## wrap
         for col in wrap_width:
             column = ws[col]
             for td in column:
-                td.alignment = Alignment(horizontal='left',vertical='center',wrap_text=True)
-                ws.column_dimensions[col].width = 55
+                alignment = copy(td.alignment)
+                alignment.horizontal = 'left'
+                alignment.vertical = 'top'
+                alignment.wrap_text = True
+                td.alignment = alignment
+                #ws.column_dimensions[col].width = 55
             ## header do not change
-            ws[col + "1"].alignment=Alignment(horizontal='center',
-                        vertical='center',
-                        text_rotation=0,
-                        wrap_text=False,
-                        shrink_to_fit=False,
-                        indent=0)
+            alignment.horizontal ='center'
+            alignment.vertical = 'center'
+            ws[col + "1"].alignment=alignment
 
         ##fill header color
         if fill_color_header is not None:
@@ -162,15 +179,62 @@ class formatter():
         for col in hide_columns:
             ws.column_dimensions[col].hidden = True
 
+        if home_page_bottom is not None:
+            offset = 4
+            No_row = ws.max_row + offset
+            Home_Bottom = ws[get_column_letter(1) + str(No_row - 1)]
+            Home_Bottom.value = f'=HYPERLINK("#{home_page_bottom}!A1","Home Page")'
+            Home_Bottom.font = Font(size=15, bold=True, color='95B3DF')
 
+        ##whiten_nontable_area
+        if whiten_nontable_area:
+            ### define area to whiten
+            whiten_col = ws.max_column + 2
+            whiten_row = ws.max_row + 2
+            whiten_area1 = ws[get_column_letter(whiten_col) + str(1):"AJ200"]
+            whiten_area2 = ws['A' + str(whiten_row): get_column_letter(whiten_col - 1) + str(200)]
+            whiten_area_col = ws[get_column_letter(whiten_col - 1) + str(1):get_column_letter(whiten_col - 1) + str(200)]
+            whiten_area_row = ws['A' + str(whiten_row - 1): get_column_letter(whiten_col - 1) + str(whiten_row - 1)]
 
-        ##choose column width
-        for col in column_width:
-            ws.column_dimensions[col].width = column_width[col]
+            color = 'FFFFFFFF'
+            font = Font(bold=False,
+                        italic=False,
+                        vertAlign=None,
+                        underline='none',
+                        strike=False,
+                        color=color)
+            fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+            for tr in whiten_area1:
+                for td in tr:
+                    td.font = font
+                    td.border = None
+                    td.fill = fill
+            for tr in whiten_area2:
+                for td in tr:
+                    td.font = font
+                    td.border = None
+                    td.fill = fill
+            for tr in whiten_area_col:
+                for td in tr:
+                    td.font = font
+                    # td.border = None
+                    td.fill = fill
+            for tr in whiten_area_row:
+                for td in tr:
+                    td.font = font
+                    # td.border = None
+                    td.fill = fill
 
-        wb.save(filename=filename)
+                    ## adjust zoom level
+        for ws in wb.worksheets:
+            ws.sheet_view.zoomScale = zoom_level
 
+        if output_filename is None:
+            wb.save(filename=filename)
+        else:
+            wb.save(filename=output_filename)
 
+#formatter('Outstanding Findings as of SEP_max_9.14.xlsx', sheet_name='raw_data', wrap_width=['J'],column_width={'J':50},header_height=36,output_filename='dsad.xlsx',home_page_bottom='Summary',whiten_nontable_area=True   )
 #formatter(filename="test.xlsx", hide_columns=["C","D","F","D","S","U","T","W"])
 #excel_file_name = 'test.xlsx'
 #formatter(filename=excel_file_name)
