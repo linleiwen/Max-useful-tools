@@ -62,3 +62,15 @@ def check_environment_var(need_environment_var_list = ["chromedriver"]):
             time.sleep(10)
             raise AttributeError
     return environment_var_dict
+
+def crop(image_path, coords, saved_location):
+    """
+    @param image_path: The path to the image to edit
+    @param coords: A tuple of x/y coordinates (x1, y1, x2, y2)
+    @param saved_location: Path to save the cropped image
+    """
+    from PIL import Image
+    image_obj = Image.open(image_path)
+    cropped_image = image_obj.crop(coords)
+    cropped_image.save(saved_location)
+    #cropped_image.show()
