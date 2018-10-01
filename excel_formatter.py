@@ -32,8 +32,9 @@ class formatter():
                  output_filename=None,
                  home_page_bottom= None,
                  whiten_nontable_area= False,
-                 zoom_level = 85
-
+                 zoom_level = 85,
+                 alignment_center_horizon = [],
+                 alignment_center_vertical = []
                  ):
         # load excel file and focus on one sheet
         if column_width is None:
@@ -130,14 +131,33 @@ class formatter():
             for td in column:
                 alignment = copy(td.alignment)
                 alignment.horizontal = 'left'
+                alignment.vertical = 'top'
+                td.alignment = alignment
+
+        ## for those who have horizontal center alignment
+        for col in alignment_center_horizon:
+            column = ws[col]
+            for td in column:
+                alignment = copy(td.alignment)
+                alignment.horizontal = 'center'
+                td.alignment = alignment
+        ## for those who have vertical center alignment
+        for col in alignment_center_vertical:
+            column = ws[col]
+            for td in column:
+                alignment = copy(td.alignment)
+                alignment.vertical = 'center'
                 td.alignment = alignment
         ###header do not change
+
         if alignment_center:
             for cell in header:
                 alignment = copy(cell.alignment)
                 alignment.horizontal = 'center'
                 alignment.vertical = 'center'
                 cell.alignment = alignment
+
+
 
         ## auto fit column width
         if auto_fit_column_width:
@@ -159,8 +179,8 @@ class formatter():
             column = ws[col]
             for td in column:
                 alignment = copy(td.alignment)
-                alignment.horizontal = 'left'
-                alignment.vertical = 'top'
+                #alignment.horizontal = 'left'
+                #alignment.vertical = 'top'
                 alignment.wrap_text = True
                 td.alignment = alignment
                 #ws.column_dimensions[col].width = 55
