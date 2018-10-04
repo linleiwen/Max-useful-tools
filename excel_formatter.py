@@ -50,6 +50,14 @@ class formatter():
         table = ws[ws.min_row:ws.max_row]
         header = ws[ws.min_row]
         body = ws[ws.min_row + 1:ws.max_row]
+        try:
+            if type(table[0]) is not tuple: ## if it is only one row, it will not return a nested tuple
+                table = (table,)
+            if type(body[0]) is not tuple: ## if it is only one row, it will not return a nested tuple
+                table = (body,)
+        except:
+            pass
+
 
         #font and font size
         font = Font(name=font_name,
