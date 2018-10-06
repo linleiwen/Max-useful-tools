@@ -1,0 +1,8 @@
+    from difflib import SequenceMatcher
+    def simliar(a,b,threshold = 0.88):
+        return SequenceMatcher(None,a,b).ratio()>threshold
+
+    def short_cut_compare(x,y):
+        flag = False
+        flag = (x in y) or (y in x) or simliar(x,y)
+        return (flag)
