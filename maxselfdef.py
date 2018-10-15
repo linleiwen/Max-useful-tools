@@ -74,3 +74,20 @@ def crop(image_path, coords, saved_location):
     cropped_image = image_obj.crop(coords)
     cropped_image.save(saved_location)
     #cropped_image.show()
+
+
+def Maxcopyfolder(src, dst):
+    from shutil import copyfile
+    if os.path.isfile(src):
+        try:
+            copyfile(src, dst)
+        except:
+            print(f'{src} failed!')
+
+    if os.path.isdir(src):
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        os.makedirs(dst)
+        files = os.listdir(src)
+        for file in files:
+            Maxcopyfolder(src=src + f'\\{file}', dst=dst + f'\\{file}')
