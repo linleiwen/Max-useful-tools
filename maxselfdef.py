@@ -74,7 +74,8 @@ def crop(image_path, coords, saved_location):
     cropped_image = image_obj.crop(coords)
     cropped_image.save(saved_location)
     #cropped_image.show()
-
+def list_spliter(listObj,chunkSize=4):
+    return [listObj[i:i + chunkSize] for i in range(0, len(listObj), chunkSize)]
 
 def Maxcopyfolder(src, dst):
     from shutil import copyfile
@@ -91,3 +92,85 @@ def Maxcopyfolder(src, dst):
         files = os.listdir(src)
         for file in files:
             Maxcopyfolder(src=src + f'\\{file}', dst=dst + f'\\{file}')
+
+def check_folder_exist(folderName):
+    """
+    :param folderName: the folder(directorary we are going to check whether exist)
+    :return: None (if it does not exist, the def will create one automatically)
+    """
+    if not os.path.isdir(folderName):
+        os.mkdir(folderName)
+
+def copypaste_latest_file(Download_route,Dest_route,fileNameContains,postfix = ".xlsx"):
+    '''
+    :param Download_route: Download route
+    :param Dest_route: Destination route
+    :param fileNameContains: the part string of downloaded file name
+    :param postfix: extension type profix (".xlsx" is default)
+    :return: None (copy paste the lastest download file form download to target folder)
+    '''
+    from shutil import copyfile
+    files = [file for file in os.listdir(Download_route) if file.find(fileNameContains) != -1]
+    latest = files[0]
+    for file in files:
+        if os.path.getctime(Download_route+'\\'+file) > os.path.getctime(Download_route+'\\'+latest):
+            latest = file
+    copyfile(Download_route+"\\"+latest,Dest_route+'\\'+fileNameContains+postfix)
+
+def find_latest_file(folders,filenamecontains):
+    '''
+    :param folders: the folders we are going to search
+    :param filenamecontains: part of string file name contains
+    :return: the full route of the latest file
+    '''
+    if type(folders) ==str:
+        folders = [folders]
+    latest_folder = folders[0]
+    latest = [file for file in os.listdir(latest_folder) if file.find(filenamecontains) != -1][0] ## define the first folder and first file in that folder as latest file
+    for folder in folders:
+        files = [file for file in os.listdir(folder) if file.find(filenamecontains) != -1]
+        for file in files:
+            if os.path.getctime(folder+'\\'+file) > os.path.getctime(latest_folder+'\\'+latest):
+                latest = file
+                latest_folder = folder
+    return latest_folder +'\\'+ latest
+
+def similar_compare(x,y,comprise=True,threshold = 0.88):
+    '''
+
+    :param x: string
+    :param y: string
+    :param comprise:  x comprise y or x comprise x will return True
+    :param threshold: similarity percentage threshold
+    :return: Boolean
+    '''
+    from difflib import SequenceMatcher
+    def simliar(a,b):
+        return SequenceMatcher(None,a,b).ratio()>threshold
+    flag = False
+    flag = (((x in y) or (y in x)) and comprise) or simliar(x,y)
+    return (flag)
+
+def similar_mapping_key_dictionary(x, y, comprise=False, threshold=0.98):
+    '''
+    :param x: pd.Series x
+    :param y: pd.Series y
+    :param comprise:  x comprise y or x comprise x will think they are matching key
+    :param threshold: similarity percentage threshold
+    :return: dictionary of mapping key like keyDictionary[x] = y
+    Note y must contain all items of x
+    '''
+    import pandas as pd
+    x = pd.Series(x.unique()).copy()
+    y = pd.Series(y.unique()).copy()
+    x.sort_values(inplace=True)
+    y.sort_values(inplace=True)
+    dictionary = {}
+    for i in range(x.shape[0]):
+        for j in range(y.shape[0]):
+            if similar_compare(x.iloc[i], y=y.iloc[j], comprise=comprise, threshold=threshold):
+                dictionary[x.iloc[i]] = y.iloc[j]
+                break
+
+        # dictionary[x[x.apply(lambda x: similar_compare(x,y=y.iloc[i],comprise=comprise,threshold= threshold))].values[0]] = y.iloc[i]
+    return dictionary
