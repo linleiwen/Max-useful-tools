@@ -225,3 +225,28 @@ def getwebdriver(url=""):
     if url != "":
         driver.get(url)
     return driver
+
+def disJoinDataFrame(inputDF,DF1Columns,DF2Columns,keys):
+    import pandas as pd
+    '''
+    :param inputDF: input DataFrame (the DataFrame we want to disjoin)
+    :param DF1Columns: columns of output disjoined DataFrame (this DataFrame contains information of entities)
+    :param DF2Columns: columns of output disjoined DataFrame (this DataFrame contains records of each entity)
+    :param keys: disjoin (or join) keys
+    :return: output disjoined DataFrame (this DataFrame contains information of entities), output disjoined DataFrame (this DataFrame contains records of each entity)
+    '''
+    DF1 = inputDF[DF1Columns]
+    DF1Return = DF1.drop_duplicates()
+    DF1Return.reset_index(drop = True,inplace = True)
+    DF2 = inputDF[DF2Columns]
+    DF2Return = DF2
+    if DF2Return.shape[0]!= DF2.drop_duplicates().shape[0]:
+        print('Warning: The dataframe still have duplicate records. Please check!')
+    DF2Return.reset_index(drop = True,inplace = True)
+    rejoin = pd.merge(DF1Return,DF2Return,on=keys)
+    # dimension check (demensions of rejoin dataframe and input dataframe should be consistent)
+    if ((rejoin.columns.sort_values() == inputDF.columns.sort_values()).sum() == inputDF.shape[1]) & (rejoin.shape[0]== inputDF.shape[0]):
+        print('Bingo: Disjoin data frames pass dimension check')
+    else:
+        raise Warning('disjoin data frames do not pass dimension check！！！')
+    return DF1Return,DF2Return
