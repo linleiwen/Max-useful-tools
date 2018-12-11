@@ -126,6 +126,11 @@ def find_latest_file(folders,filenamecontains):
     if type(folders) ==str:
         folders = [folders]
     latest_folder = folders[0]
+    while(len([file for file in os.listdir(latest_folder) if file.find(filenamecontains) != -1])==0): ## if file is not in the first folder then remove the folder and assign to next folder until find it
+        folders.pop(0)
+        if len(folders)==0:
+            raise FileNotFoundError(f'We can not find file: {filenamecontains}')
+        latest_folder = folders[0]
     latest = [file for file in os.listdir(latest_folder) if file.find(filenamecontains) != -1][0] ## define the first folder and first file in that folder as latest file
     for folder in folders:
         files = [file for file in os.listdir(folder) if file.find(filenamecontains) != -1]
@@ -134,6 +139,7 @@ def find_latest_file(folders,filenamecontains):
                 latest = file
                 latest_folder = folder
     return latest_folder +'\\'+ latest
+
 
 def similar_compare(x,y,comprise=True,threshold = 0.88):
     '''
@@ -174,3 +180,48 @@ def similar_mapping_key_dictionary(x, y, comprise=False, threshold=0.98):
 
         # dictionary[x[x.apply(lambda x: similar_compare(x,y=y.iloc[i],comprise=comprise,threshold= threshold))].values[0]] = y.iloc[i]
     return dictionary
+
+def to_universe_date_format(PdSeries, errors='coerce',to_string = True, NaT_replace = ' '):
+    '''
+
+    :param PdSeries: pandas Series (str or object type)
+    :param errors: if we encounter errors, what should we do
+    :param to_string:  Return str or pd time series
+    :param NaT_replace: if we choose str, what should we replace NaT
+    :return: pd Series with universal data format
+    '''
+    import pandas as pd
+    PdSeries = pd.to_datetime(PdSeries,errors)
+    if to_string:
+        PdSeries = PdSeries.astype('str')
+        PdSeries = PdSeries.str.replace('NaT',NaT_replace)
+    return PdSeries
+
+def to_traditional_date_format_string(string):
+    import re
+    research_result = re.search(r'(?P<year>\d{4}?)-(?P<month>\d{2}?)-(?P<day>\d{2}?)(?P<other>.*)',string)
+    if research_result==None:
+        return ' '
+    else:
+        return research_result.group('month')+'/'+research_result.group('day')+'/'+research_result.group('year')+research_result.group('other')
+
+def to_traditional_date_format(PdSeries,NaT_replace = ' '):
+    import pandas as pd
+    PdSeries = PdSeries.astype('str')
+    return PdSeries.apply(to_traditional_date_format_string)
+
+def linefeed_remove_strip(PdSeries):
+    '''
+    replace '\n' and apply strip() on a string pdSeries
+    '''
+    return PdSeries.str.replace('\n',' ').str.strip()
+
+def getwebdriver(url=""):
+    # Start the chrome driver with selenium
+    # https://stackoverflow.com/questions/43079018/selenium-chromedriver-failed-to-load-extension
+    capabilities = {'chromeOptions': {'useAutomationExtension': False}}
+    driver = webdriver.Chrome(os.environ['chromedriver'], desired_capabilities=capabilities)
+    driver.maximize_window()
+    if url != "":
+        driver.get(url)
+    return driver
