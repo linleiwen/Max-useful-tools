@@ -31,12 +31,9 @@ A collection of useful Python functions created by Max Lin. Feel free to clone a
   - [maxselfdef.py](#maxselfdefpy)
   - [mywait.py](#mywaitpy)
   - [selenium_start.ipynb](#selenium_startipynb)
-  - [selenium_start_template.ipynb](#selenium_start_templateipynb)
-  - [simple_anticrash_loop.py](#simple_anticrash_looppy)
+  - [selenium_start_template.ipynb](#selenium-start-templateipynb)
+  - [simple_anticrash_loop.py](#simple-anticrash-looppy)
   - [translator.py](#translatorpy)
-- [Usage Examples](#usage-examples)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 This repository contains a collection of useful Python functions developed by Max Lin. These functions cover various aspects of Python programming, including data processing, API integration, and general utilities.
