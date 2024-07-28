@@ -12,10 +12,7 @@
 </center>
 
 
-## Summary
-
-# Python-useful-functions
-# Python Library
+# Summary
 
 A collection of useful Python functions created by Max Lin. Feel free to clone and fork this repository.
 
