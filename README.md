@@ -23,17 +23,17 @@ A collection of useful Python functions created by Max Lin. Feel free to clone a
 **GitHub URL**: [Python Functions](https://github.com/linleiwen/Max-useful-tools)
 
 ## Table of Contents
-- [Library Overview](#library-overview)
-  - [environment variable setting.ipynb](#environment-variable-settingipynb)
-  - [excel_appender.py](#excel_appenderpy)
-  - [excel_barchart.py](#excel_barchartpy)
-  - [excel_formatter.py](#excel_formatterpy)
-  - [maxselfdef.py](#maxselfdefpy)
-  - [mywait.py](#mywaitpy)
-  - [selenium_start.ipynb](#selenium_startipynb)
-  - [selenium_start_template.ipynb](#selenium-start-templateipynb)
-  - [simple_anticrash_loop.py](#simple-anticrash-looppy)
-  - [translator.py](#translatorpy)
+- [Library Overview]
+  - [environment_variable_setting.ipynb]
+  - [excel_appender.py]
+  - [excel_barchart.py]
+  - [excel_formatter.py]
+  - [maxselfdef.py]
+  - [mywait.py]
+  - [selenium_start.ipynb]
+  - [selenium_start_template.ipynb]
+  - [simple_anticrash_loop.py]
+  - [translator.py]
 
 ## Introduction
 This repository contains a collection of useful Python functions developed by Max Lin. These functions cover various aspects of Python programming, including data processing, API integration, and general utilities.
